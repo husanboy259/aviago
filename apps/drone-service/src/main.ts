@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+﻿import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -20,7 +20,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, config));
 
   const port = process.env.PORT || 3005;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   logger.log(`Drone Service running on port ${port} (WebSocket: /tracking)`);
 }
 bootstrap();
