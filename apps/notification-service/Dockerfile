@@ -22,8 +22,9 @@ RUN pnpm --filter @delidrone/notification-service deploy --prod /deploy
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=10000
 COPY --from=builder /deploy/node_modules        ./node_modules
 COPY --from=builder /app/apps/notification-service/dist  ./dist
 COPY --from=deps    /app/apps/notification-service/package.json ./package.json
-EXPOSE 3009
+EXPOSE 10000
 CMD ["node", "dist/main"]

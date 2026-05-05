@@ -22,8 +22,9 @@ RUN pnpm --filter @delidrone/restaurant-service deploy --prod /deploy
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=10000
 COPY --from=builder /deploy/node_modules        ./node_modules
 COPY --from=builder /app/apps/restaurant-service/dist  ./dist
 COPY --from=deps    /app/apps/restaurant-service/package.json ./package.json
-EXPOSE 3003
+EXPOSE 10000
 CMD ["node", "dist/main"]

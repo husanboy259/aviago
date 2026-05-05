@@ -19,7 +19,7 @@ async function bootstrap() {
     .build();
   SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, config));
 
-  const port = process.env.PORT || 3005;
+  const port = process.env.PORT || 10000;
   await app.listen(port, '0.0.0.0');
   logger.log(`Drone Service running on port ${port} (WebSocket: /tracking)`);
 }

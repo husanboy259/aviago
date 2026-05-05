@@ -22,8 +22,9 @@ RUN pnpm --filter @delidrone/drone-service deploy --prod /deploy
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=10000
 COPY --from=builder /deploy/node_modules        ./node_modules
 COPY --from=builder /app/apps/drone-service/dist  ./dist
 COPY --from=deps    /app/apps/drone-service/package.json ./package.json
-EXPOSE 3005
+EXPOSE 10000
 CMD ["node", "dist/main"]
