@@ -1,9 +1,10 @@
-FROM node:20-alpine AS base
+﻿FROM node:20-alpine AS base
 WORKDIR /app
 RUN npm install -g pnpm
 
 FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY tsconfig.base.json ./
 COPY packages/common/package.json ./packages/common/
 COPY apps/api-gateway/package.json ./apps/api-gateway/
 RUN pnpm install --frozen-lockfile
@@ -11,7 +12,7 @@ RUN pnpm install --frozen-lockfile
 FROM deps AS builder
 COPY packages/common ./packages/common
 COPY apps/api-gateway ./apps/api-gateway
-RUN pnpm --filter @delidrone/api-gateway build
+RUN pnpm --filter @delidrone/common build && pnpm --filter @delidrone/api-gateway build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
