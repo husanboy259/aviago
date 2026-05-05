@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-family: 'Inter', system-ui, sans-serif; }
+  body { background: #0D0D0D; color: #f0f0f0; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #1a1a1a; }
+  ::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 3px; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-brand-500 hover:bg-brand-600 text-white font-semibold px-6 py-3 rounded-xl
+           transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+           active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-dark-100 hover:bg-dark-200 text-white font-semibold px-6 py-3 rounded-xl
+           border border-dark-300 transition-all duration-200 active:scale-95;
+  }
+
+  .card {
+    @apply bg-dark-100 rounded-2xl border border-dark-200 p-5;
+  }
+
+  .input {
+    @apply w-full bg-dark-200 border border-dark-300 rounded-xl px-4 py-3 text-white
+           placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500
+           focus:border-transparent transition-all;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .status-pending    { @apply badge bg-yellow-500/20 text-yellow-400; }
+  .status-accepted   { @apply badge bg-blue-500/20   text-blue-400; }
+  .status-preparing  { @apply badge bg-orange-500/20 text-orange-400; }
+  .status-dispatched { @apply badge bg-purple-500/20 text-purple-400; }
+  .status-in_flight  { @apply badge bg-cyan-500/20   text-cyan-400; }
+  .status-delivered  { @apply badge bg-green-500/20  text-green-400; }
+  .status-cancelled  { @apply badge bg-red-500/20    text-red-400; }
+}

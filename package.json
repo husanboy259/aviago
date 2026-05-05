@@ -1,0 +1,42 @@
+{
+  "name": "delidrone",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npx turbo run dev",
+    "build": "npx turbo run build",
+    "start": "npx turbo run start",
+    "lint": "npx turbo run lint",
+    "test": "npx turbo run test",
+    "dev:auth": "pnpm --filter @delidrone/auth-service dev",
+    "dev:user": "pnpm --filter @delidrone/user-service dev",
+    "dev:restaurant": "pnpm --filter @delidrone/restaurant-service dev",
+    "dev:order": "pnpm --filter @delidrone/order-service dev",
+    "dev:drone": "pnpm --filter @delidrone/drone-service dev",
+    "dev:payment": "pnpm --filter @delidrone/payment-service dev",
+    "dev:notification": "pnpm --filter @delidrone/notification-service dev",
+    "dev:analytics": "pnpm --filter @delidrone/analytics-service dev",
+    "dev:gateway": "pnpm --filter @delidrone/api-gateway dev",
+    "dev:web": "pnpm --filter @delidrone/web dev",
+    "infra:up": "docker compose up -d postgres redis",
+    "infra:down": "docker compose down",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:build": "docker compose build"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0",
+    "prettier": "^3.3.0",
+    "eslint": "^8.57.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

@@ -1,0 +1,401 @@
+# ─── Common env helper (referenced by all NestJS services) ─────────────────────
+# All backend services share: JWT_SECRET, POSTGRES_HOST, REDIS_HOST
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AUTH SERVICE
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: delidrone
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: delidrone/auth-service:latest
+          ports:
+            - containerPort: 3001
+          env:
+            - name: PORT
+              value: "3001"
+            - name: NODE_ENV
+              value: production
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_DB
+              value: delidrone_auth
+            - name: POSTGRES_USER
+              value: delidrone
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: delidrone-secrets
+                  key: POSTGRES_PASSWORD
+            - name: REDIS_HOST
+              value: redis
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: delidrone-secrets
+                  key: JWT_SECRET
+            - name: JWT_REFRESH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: delidrone-secrets
+                  key: JWT_REFRESH_SECRET
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 3001
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: delidrone
+spec:
+  selector:
+    app: auth-service
+  ports:
+    - port: 3001
+      targetPort: 3001
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# USER SERVICE
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: delidrone
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: delidrone/user-service:latest
+          ports:
+            - containerPort: 3002
+          env:
+            - name: PORT
+              value: "3002"
+            - name: NODE_ENV
+              value: production
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_DB
+              value: delidrone_users
+            - name: POSTGRES_USER
+              value: delidrone
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: delidrone-secrets
+                  key: POSTGRES_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: delidrone-secrets
+                  key: JWT_SECRET
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits:   { cpu: 500m, memory: 512Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: delidrone
+spec:
+  selector:
+    app: user-service
+  ports:
+    - port: 3002
+      targetPort: 3002
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# RESTAURANT SERVICE
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurant-service
+  namespace: delidrone
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: restaurant-service
+  template:
+    metadata:
+      labels:
+        app: restaurant-service
+    spec:
+      containers:
+        - name: restaurant-service
+          image: delidrone/restaurant-service:latest
+          ports:
+            - containerPort: 3003
+          env:
+            - name: PORT
+              value: "3003"
+            - name: NODE_ENV
+              value: production
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_DB
+              value: delidrone_restaurants
+            - name: POSTGRES_USER
+              value: delidrone
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: delidrone-secrets
+                  key: POSTGRES_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: delidrone-secrets
+                  key: JWT_SECRET
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits:   { cpu: 500m, memory: 512Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: restaurant-service
+  namespace: delidrone
+spec:
+  selector:
+    app: restaurant-service
+  ports:
+    - port: 3003
+      targetPort: 3003
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ORDER SERVICE
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: delidrone
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+        - name: order-service
+          image: delidrone/order-service:latest
+          ports:
+            - containerPort: 3004
+          env:
+            - name: PORT
+              value: "3004"
+            - name: NODE_ENV
+              value: production
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_DB
+              value: delidrone_orders
+            - name: POSTGRES_USER
+              value: delidrone
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: delidrone-secrets
+                  key: POSTGRES_PASSWORD
+            - name: REDIS_HOST
+              value: redis
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: delidrone-secrets
+                  key: JWT_SECRET
+            - name: RESTAURANT_SERVICE_URL
+              value: http://restaurant-service:3003
+            - name: DRONE_SERVICE_URL
+              value: http://drone-service:3005
+          resources:
+            requests: { cpu: 150m, memory: 384Mi }
+            limits:   { cpu: 700m, memory: 768Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: delidrone
+spec:
+  selector:
+    app: order-service
+  ports:
+    - port: 3004
+      targetPort: 3004
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# DRONE SERVICE
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drone-service
+  namespace: delidrone
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: drone-service
+  template:
+    metadata:
+      labels:
+        app: drone-service
+    spec:
+      containers:
+        - name: drone-service
+          image: delidrone/drone-service:latest
+          ports:
+            - containerPort: 3005
+          env:
+            - name: PORT
+              value: "3005"
+            - name: NODE_ENV
+              value: production
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_DB
+              value: delidrone_drones
+            - name: POSTGRES_USER
+              value: delidrone
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: delidrone-secrets
+                  key: POSTGRES_PASSWORD
+            - name: REDIS_HOST
+              value: redis
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: delidrone-secrets
+                  key: JWT_SECRET
+          resources:
+            requests: { cpu: 150m, memory: 384Mi }
+            limits:   { cpu: 700m, memory: 768Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: drone-service
+  namespace: delidrone
+spec:
+  selector:
+    app: drone-service
+  ports:
+    - port: 3005
+      targetPort: 3005
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# API GATEWAY
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: delidrone
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: delidrone/api-gateway:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: NODE_ENV
+              value: production
+            - name: AUTH_SERVICE_URL
+              value: http://auth-service:3001
+            - name: USER_SERVICE_URL
+              value: http://user-service:3002
+            - name: RESTAURANT_SERVICE_URL
+              value: http://restaurant-service:3003
+            - name: ORDER_SERVICE_URL
+              value: http://order-service:3004
+            - name: DRONE_SERVICE_URL
+              value: http://drone-service:3005
+            - name: PAYMENT_SERVICE_URL
+              value: http://payment-service:3006
+            - name: NOTIFICATION_SERVICE_URL
+              value: http://notification-service:3007
+            - name: ANALYTICS_SERVICE_URL
+              value: http://analytics-service:3008
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: delidrone-secrets
+                  key: JWT_SECRET
+            - name: REDIS_HOST
+              value: redis
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 200m, memory: 384Mi }
+            limits:   { cpu: 1000m, memory: 1Gi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: delidrone
+spec:
+  selector:
+    app: api-gateway
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: ClusterIP

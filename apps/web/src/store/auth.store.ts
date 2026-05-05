@@ -1,0 +1,48 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+interface User {
+  id: string;
+  phone: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  role: string;
+  avatarUrl?: string;
+}
+
+interface AuthState {
+  user: User | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  isAuthenticated: boolean;
+  setAuth: (user: User, accessToken: string, refreshToken: string) => void;
+  setUser: (user: User) => void;
+  logout: () => void;
+}
+
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+
+      setAuth: (user, accessToken, refreshToken) => {
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        set({ user, accessToken, refreshToken, isAuthenticated: true });
+      },
+
+      setUser: (user) => set({ user }),
+
+      logout: () => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
+      },
+    }),
+    { name: 'delidrone-auth', partialize: (s) => ({ user: s.user, accessToken: s.accessToken, refreshToken: s.refreshToken, isAuthenticated: s.isAuthenticated }) },
+  ),
+);

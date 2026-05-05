@@ -1,0 +1,300 @@
+version: '3.9'
+
+networks:
+  delidrone-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+
+services:
+  # ─── Infrastructure ────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: delidrone-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-delidrone}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-delidrone_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-delidrone}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - delidrone-net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-delidrone}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: delidrone-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-}
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - delidrone-net
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Backend Services ──────────────────────────────
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    container_name: delidrone-api-gateway
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - USER_SERVICE_URL=http://user-service:3002
+      - RESTAURANT_SERVICE_URL=http://restaurant-service:3003
+      - ORDER_SERVICE_URL=http://order-service:3004
+      - DRONE_SERVICE_URL=http://drone-service:3005
+      - PAYMENT_SERVICE_URL=http://payment-service:3006
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3007
+      - ANALYTICS_SERVICE_URL=http://analytics-service:3008
+      - JWT_SECRET=${JWT_SECRET}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - auth-service
+      - user-service
+      - restaurant-service
+      - order-service
+      - drone-service
+    networks:
+      - delidrone-net
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: apps/auth-service/Dockerfile
+    container_name: delidrone-auth
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-delidrone}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-delidrone_secret}
+      - POSTGRES_DB=delidrone_auth
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - ESKIZ_EMAIL=${ESKIZ_EMAIL}
+      - ESKIZ_PASSWORD=${ESKIZ_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - delidrone-net
+
+  user-service:
+    build:
+      context: .
+      dockerfile: apps/user-service/Dockerfile
+    container_name: delidrone-users
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-delidrone}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-delidrone_secret}
+      - POSTGRES_DB=delidrone_users
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - delidrone-net
+
+  restaurant-service:
+    build:
+      context: .
+      dockerfile: apps/restaurant-service/Dockerfile
+    container_name: delidrone-restaurants
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-delidrone}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-delidrone_secret}
+      - POSTGRES_DB=delidrone_restaurants
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - delidrone-net
+
+  order-service:
+    build:
+      context: .
+      dockerfile: apps/order-service/Dockerfile
+    container_name: delidrone-orders
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-delidrone}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-delidrone_secret}
+      - POSTGRES_DB=delidrone_orders
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+      - DRONE_SERVICE_URL=http://drone-service:3005
+      - PAYMENT_SERVICE_URL=http://payment-service:3006
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3007
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - delidrone-net
+
+  drone-service:
+    build:
+      context: .
+      dockerfile: apps/drone-service/Dockerfile
+    container_name: delidrone-drones
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-delidrone}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-delidrone_secret}
+      - POSTGRES_DB=delidrone_drones
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - delidrone-net
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: apps/payment-service/Dockerfile
+    container_name: delidrone-payments
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3006
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-delidrone}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-delidrone_secret}
+      - POSTGRES_DB=delidrone_payments
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+      - PAYME_MERCHANT_ID=${PAYME_MERCHANT_ID}
+      - PAYME_SECRET_KEY=${PAYME_SECRET_KEY}
+      - CLICK_MERCHANT_ID=${CLICK_MERCHANT_ID}
+      - CLICK_SECRET_KEY=${CLICK_SECRET_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - delidrone-net
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: apps/notification-service/Dockerfile
+    container_name: delidrone-notifications
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3007
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - FCM_SERVER_KEY=${FCM_SERVER_KEY}
+      - ESKIZ_EMAIL=${ESKIZ_EMAIL}
+      - ESKIZ_PASSWORD=${ESKIZ_PASSWORD}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - delidrone-net
+
+  analytics-service:
+    build:
+      context: .
+      dockerfile: apps/analytics-service/Dockerfile
+    container_name: delidrone-analytics
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3008
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-delidrone}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-delidrone_secret}
+      - POSTGRES_DB=delidrone_analytics
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - delidrone-net
+
+  # ─── Frontend ──────────────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: delidrone-web
+    restart: unless-stopped
+    ports:
+      - '3030:3000'
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      - NEXT_PUBLIC_WS_URL=ws://localhost:3004
+      - NEXT_PUBLIC_MAPBOX_TOKEN=${NEXT_PUBLIC_MAPBOX_TOKEN}
+    depends_on:
+      - api-gateway
+    networks:
+      - delidrone-net
