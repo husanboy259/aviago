@@ -55,7 +55,7 @@ export default function AdminDashboard() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-dark flex items-center justify-center">
-        <div className="text-gray-400">Loading dashboardвЂ¦</div>
+        <div className="text-gray-400">Loading dashboard...</div>
       </div>
     );
   }
@@ -69,15 +69,15 @@ export default function AdminDashboard() {
         {/* Sidebar */}
         <aside className="w-60 min-h-screen bg-dark-100 border-r border-dark-200 p-4 flex-shrink-0 hidden lg:flex flex-col gap-1">
           <div className="font-bold text-xl text-white mb-6 px-2">
-            Airo<span class="text-brand-500">Go</span> Admin
+            Airo<span className=”text-brand-500”>Go</span> Admin
           </div>
           {[
-            { href: '/admin', label: 'Dashboard', icon: 'рџ“Љ' },
-            { href: '/admin/restaurants', label: 'Restaurants', icon: 'рџЌЅпёЏ' },
-            { href: '/admin/orders', label: 'Orders', icon: 'рџ“¦' },
-            { href: '/admin/drones', label: 'Fleet', icon: 'рџљЃ' },
-            { href: '/admin/users', label: 'Users', icon: 'рџ‘Ґ' },
-            { href: '/admin/analytics', label: 'Analytics', icon: 'рџ“€' },
+            { href: ‘/admin’, label: ‘Dashboard’, icon: ‘📊’ },
+            { href: ‘/admin/restaurants’, label: ‘Restaurants’, icon: ‘🍽️’ },
+            { href: ‘/admin/orders’, label: ‘Orders’, icon: ‘📦’ },
+            { href: ‘/admin/drones’, label: ‘Fleet’, icon: ‘🚁’ },
+            { href: ‘/admin/users’, label: ‘Users’, icon: ‘👥’ },
+            { href: ‘/admin/analytics’, label: ‘Analytics’, icon: ‘📈’ },
           ].map((item) => (
             <Link
               key={item.href}

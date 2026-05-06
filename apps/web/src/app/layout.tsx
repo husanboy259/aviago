@@ -3,7 +3,7 @@ import './globals.css';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'Airo Go вЂ” Drone Delivery',
+  title: 'Airo Go — Drone Delivery',
   description: 'Fast, futuristic drone delivery for restaurants and customers',
   icons: { icon: '/favicon.ico' },
 };

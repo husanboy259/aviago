@@ -10,11 +10,11 @@ import { Minus, Plus, Trash2, MapPin, ArrowLeft } from 'lucide-react';
 import { CustomerNav } from '@/components/layout/CustomerNav';
 
 const PAYMENT_METHODS = [
-  { value: 'payme',  label: 'Payme',   emoji: 'рџ’і' },
-  { value: 'click',  label: 'Click',   emoji: 'вљЎ' },
-  { value: 'uzcard', label: 'Uzcard',  emoji: 'рџ’і' },
-  { value: 'humo',   label: 'Humo',    emoji: 'рџ’і' },
-  { value: 'cash',   label: 'Cash',    emoji: 'рџ’µ' },
+  { value: ‘payme’,  label: ‘Payme’,   emoji: ‘💳’ },
+  { value: ‘click’,  label: ‘Click’,   emoji: ‘⚡’ },
+  { value: ‘uzcard’, label: ‘Uzcard’,  emoji: ‘💳’ },
+  { value: ‘humo’,   label: ‘Humo’,    emoji: ‘💳’ },
+  { value: ‘cash’,   label: ‘Cash’,    emoji: ‘💵’ },
 ];
 
 function fmt(n: number) {
@@ -64,7 +64,7 @@ export default function CartPage() {
       <div className="min-h-screen bg-dark">
         <CustomerNav cartCount={0} />
         <div className="flex flex-col items-center justify-center py-32 text-gray-400">
-          <div className="text-6xl mb-4">рџ›’</div>
+          <div className="text-6xl mb-4">🛒</div>
           <p className="mb-6">Your cart is empty</p>
           <button onClick={() => router.push('/restaurants')} className="btn-primary">Browse Restaurants</button>
         </div>
@@ -183,10 +183,10 @@ export default function CartPage() {
               disabled={loading || !selectedAddress}
               className="btn-primary w-full mt-6"
             >
-              {loading ? 'Placing orderвЂ¦' : `Place Order В· ${fmt(total() + DELIVERY_FEE)}`}
+              {loading ? 'Placing order...' : `Place Order · ${fmt(total() + DELIVERY_FEE)}`}
             </button>
 
-            <p className="text-xs text-gray-500 text-center mt-3">рџљЃ Estimated delivery: ~20 min by drone</p>
+            <p className="text-xs text-gray-500 text-center mt-3">🚁 Estimated delivery: ~20 min by drone</p>
           </div>
         </div>
       </div>
