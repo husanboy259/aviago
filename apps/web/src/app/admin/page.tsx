@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useQuery } from '@tanstack/react-query';
 import { analyticsApi } from '@/lib/api';
@@ -41,6 +41,16 @@ function StatCard({ icon: Icon, label, value, sub, color = 'brand' }: any) {
   );
 }
 
+const NAV_ITEMS = [
+  { href: '/admin',            label: 'Dashboard'   },
+  { href: '/admin/restaurants', label: 'Restaurants' },
+  { href: '/admin/orders',     label: 'Orders'      },
+  { href: '/admin/drones',     label: 'Fleet'       },
+  { href: '/admin/users',      label: 'Users'       },
+  { href: '/admin/analytics',  label: 'Analytics'   },
+  { href: '/admin/products',   label: 'Products'    },
+];
+
 export default function AdminDashboard() {
   const { data, isLoading } = useQuery({
     queryKey: ['analytics-dashboard'],
@@ -64,47 +74,34 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-dark">
-      {/* Sidebar + main layout */}
       <div className="flex">
-        {/* Sidebar */}
         <aside className="w-60 min-h-screen bg-dark-100 border-r border-dark-200 p-4 flex-shrink-0 hidden lg:flex flex-col gap-1">
           <div className="font-bold text-xl text-white mb-6 px-2">
-            Airo<span className=”text-brand-500”>Go</span> Admin
+            Airo<span className="text-brand-500">Go</span> Admin
           </div>
-          {[
-            { href: ‘/admin’, label: ‘Dashboard’, icon: ‘📊’ },
-            { href: ‘/admin/restaurants’, label: ‘Restaurants’, icon: ‘🍽️’ },
-            { href: ‘/admin/orders’, label: ‘Orders’, icon: ‘📦’ },
-            { href: ‘/admin/drones’, label: ‘Fleet’, icon: ‘🚁’ },
-            { href: ‘/admin/users’, label: ‘Users’, icon: ‘👥’ },
-            { href: ‘/admin/analytics’, label: ‘Analytics’, icon: ‘📈’ },
-          ].map((item) => (
+          {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-dark-200 transition-colors text-sm"
             >
-              <span>{item.icon}</span>
               {item.label}
             </Link>
           ))}
         </aside>
 
-        {/* Main content */}
         <main className="flex-1 p-6 overflow-auto">
           <h1 className="text-2xl font-bold text-white mb-6">Dashboard Overview</h1>
 
-          {/* KPI grid */}
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-            <StatCard icon={DollarSign}  label="Daily Revenue"    value={`${fmtRevenue(revenue?.dailyRevenue)} UZS`}   color="brand"  />
-            <StatCard icon={ShoppingBag} label="Total Orders"     value={fmt(revenue?.totalOrders)}                    color="blue"   />
-            <StatCard icon={TrendingUp}  label="Completion Rate"  value={`${revenue?.completionRate}%`}                color="green"  sub={`${revenue?.completedOrders} delivered`} />
-            <StatCard icon={Truck}       label="Avg Delivery"     value={`${delivery?.avgDeliveryMinutes} min`}         color="purple" />
-            <StatCard icon={Users}       label="Active Today"     value={fmt(users?.activeUsersToday)}                 color="orange" />
-            <StatCard icon={Package}     label="Drones Active"    value={`${delivery?.dronesOnDelivery}/${delivery?.activeDrones}`} color="yellow" />
+            <StatCard icon={DollarSign}  label="Daily Revenue"   value={`${fmtRevenue(revenue?.dailyRevenue)} UZS`}  color="brand"  />
+            <StatCard icon={ShoppingBag} label="Total Orders"    value={fmt(revenue?.totalOrders)}                   color="blue"   />
+            <StatCard icon={TrendingUp}  label="Completion Rate" value={`${revenue?.completionRate}%`}               color="green"  sub={`${revenue?.completedOrders} delivered`} />
+            <StatCard icon={Truck}       label="Avg Delivery"    value={`${delivery?.avgDeliveryMinutes} min`}        color="purple" />
+            <StatCard icon={Users}       label="Active Today"    value={fmt(users?.activeUsersToday)}                color="orange" />
+            <StatCard icon={Package}     label="Drones Active"   value={`${delivery?.dronesOnDelivery}/${delivery?.activeDrones}`} color="yellow" />
           </div>
 
-          {/* Revenue trend chart */}
           <div className="card mb-6">
             <h2 className="font-semibold text-white mb-4">Revenue Trend (30 days)</h2>
             <ResponsiveContainer width="100%" height={220}>
@@ -127,7 +124,6 @@ export default function AdminDashboard() {
             </ResponsiveContainer>
           </div>
 
-          {/* Orders per day + Top Restaurants */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="card">
               <h2 className="font-semibold text-white mb-4">Orders per Day</h2>
@@ -170,4 +166,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-

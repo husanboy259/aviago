@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -10,11 +10,11 @@ import { Minus, Plus, Trash2, MapPin, ArrowLeft } from 'lucide-react';
 import { CustomerNav } from '@/components/layout/CustomerNav';
 
 const PAYMENT_METHODS = [
-  { value: ‘payme’,  label: ‘Payme’,   emoji: ‘💳’ },
-  { value: ‘click’,  label: ‘Click’,   emoji: ‘⚡’ },
-  { value: ‘uzcard’, label: ‘Uzcard’,  emoji: ‘💳’ },
-  { value: ‘humo’,   label: ‘Humo’,    emoji: ‘💳’ },
-  { value: ‘cash’,   label: ‘Cash’,    emoji: ‘💵’ },
+  { value: 'payme',  label: 'Payme',  emoji: 'P' },
+  { value: 'click',  label: 'Click',  emoji: 'C' },
+  { value: 'uzcard', label: 'Uzcard', emoji: 'U' },
+  { value: 'humo',   label: 'Humo',   emoji: 'H' },
+  { value: 'cash',   label: 'Cash',   emoji: '$' },
 ];
 
 function fmt(n: number) {
@@ -77,7 +77,6 @@ export default function CartPage() {
       <CustomerNav cartCount={itemCount()} />
 
       <div className="max-w-4xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Cart items */}
         <div className="lg:col-span-2 space-y-4">
           <button onClick={() => router.back()} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm">
             <ArrowLeft className="w-4 h-4" /> Back to menu
@@ -110,7 +109,6 @@ export default function CartPage() {
             </div>
           </div>
 
-          {/* Delivery address */}
           <div className="card">
             <h2 className="font-semibold text-white mb-4 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-brand-500" /> Delivery Address
@@ -135,7 +133,6 @@ export default function CartPage() {
             )}
           </div>
 
-          {/* Payment method */}
           <div className="card">
             <h2 className="font-semibold text-white mb-4">Payment Method</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -145,21 +142,19 @@ export default function CartPage() {
                   onClick={() => setPaymentMethod(m.value)}
                   className={`flex items-center gap-2 p-3 rounded-xl border transition-colors ${paymentMethod === m.value ? 'border-brand-500 bg-brand-500/10 text-white' : 'border-dark-300 text-gray-400 hover:border-dark-200'}`}
                 >
-                  <span>{m.emoji}</span>
+                  <span className="font-bold text-brand-500">{m.emoji}</span>
                   <span className="text-sm font-medium">{m.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Notes */}
           <div className="card">
             <h2 className="font-semibold text-white mb-3">Order Notes</h2>
             <textarea className="input resize-none" rows={2} placeholder="Any special requests?" value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
         </div>
 
-        {/* Order summary */}
         <div className="lg:col-span-1">
           <div className="card sticky top-6">
             <h2 className="font-semibold text-white mb-4">Order Summary</h2>
@@ -183,14 +178,13 @@ export default function CartPage() {
               disabled={loading || !selectedAddress}
               className="btn-primary w-full mt-6"
             >
-              {loading ? 'Placing order...' : `Place Order · ${fmt(total() + DELIVERY_FEE)}`}
+              {loading ? 'Placing order...' : 'Place Order - ' + fmt(total() + DELIVERY_FEE)}
             </button>
 
-            <p className="text-xs text-gray-500 text-center mt-3">🚁 Estimated delivery: ~20 min by drone</p>
+            <p className="text-xs text-gray-500 text-center mt-3">Drone delivery: ~20 min</p>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
